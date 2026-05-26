@@ -1,0 +1,68 @@
+name: R5 Build and Deploy to ECR
+
+on:
+  push:
+    branches: [ r5 ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: r5-greengrass-test
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Create Greengrass Component Version
+        env:
+          COMPONENT_VERSION: 3.0.${{ github.run_number }}
+        run: |
+          cat > recipe.json << RECIPE
+          {
+            "RecipeFormatVersion": "2020-01-25",
+            "ComponentName": "com.r5.test",
+            "ComponentVersion": "${COMPONENT_VERSION}",
+            "ComponentDescription": "R5 Test Component",
+            "ComponentPublisher": "HR",
+            "Manifests": [
+              {
+                "Platform": {
+                  "os": "linux"
+                },
+                "Lifecycle": {
+                  "Run": "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 429877855959.dkr.ecr.ap-northeast-2.amazonaws.com && docker pull 429877855959.dkr.ecr.ap-northeast-2.amazonaws.com/r5-greengrass-test:latest && docker run --rm 429877855959.dkr.ecr.ap-northeast-2.amazonaws.com/r5-greengrass-test:latest"
+                }
+              }
+            ]
+          }
+          RECIPE
+          aws greengrassv2 create-component-version \
+              --inline-recipe fileb://recipe.json \
+              --region ap-northeast-2
+
+      - name: Deploy Greengrass Component
+        env:
+          COMPONENT_VERSION: 3.0.${{ github.run_number }}
+        run: |
+          aws greengrassv2 create-deployment \
+              --target-arn "arn:aws:iot:ap-northeast-2:429877855959:thinggroup/RobotGroup" \
+              --components "{\"com.r5.test\": {\"componentVersion\": \"${COMPONENT_VERSION}\"}}" \
+              --region ap-northeast-2
