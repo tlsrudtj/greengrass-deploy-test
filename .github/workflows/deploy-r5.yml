@@ -48,13 +48,8 @@ jobs:
                   "os": "linux"
                 },
                 "Lifecycle": {
-                  "Startup": {
-                    "Script": "docker stop r5-app 2>/dev/null || true"
-                  },
-                  "Run": "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 429877855959.dkr.ecr.ap-northeast-2.amazonaws.com && docker pull 429877855959.dkr.ecr.ap-northeast-2.amazonaws.com/r5-greengrass-test:latest && docker run --rm --name r5-app 429877855959.dkr.ecr.ap-northeast-2.amazonaws.com/r5-greengrass-test:latest",
-                  "Shutdown": {
-                    "Script": "docker stop r5-app 2>/dev/null || true"
-                  }
+                  "Run": "docker stop r5-app 2>/dev/null || true && aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 429877855959.dkr.ecr.ap-northeast-2.amazonaws.com && docker pull 429877855959.dkr.ecr.ap-northeast-2.amazonaws.com/r5-greengrass-test:latest && docker run --rm --name r5-app 429877855959.dkr.ecr.ap-northeast-2.amazonaws.com/r5-greengrass-test:latest",
+                  "Shutdown": "docker stop r5-app 2>/dev/null || true"
                 }
               }
             ]
