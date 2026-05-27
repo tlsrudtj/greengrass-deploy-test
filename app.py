@@ -3,9 +3,9 @@ import json
 from datetime import datetime
 import paho.mqtt.client as mqtt
 
-VERSION = "1.0.1.0"
+VERSION = "1.0.1.10"
 
-MQTT_BROKER = "172.30.1.10"
+MQTT_BROKER = "172.17.0.1"  # Docker bridge 게이트웨이 (호스트)
 MQTT_PORT = 1883
 
 TOPIC_PUBLISH = "status/order_manager/robot_manager"
@@ -44,4 +44,4 @@ while True:
     })
     client.publish(TOPIC_PUBLISH, payload)
     print(f"[MQTT] 발행 | topic: {TOPIC_PUBLISH} | {payload}")
-    time.sleep(30)
+    time.sleep(3)
