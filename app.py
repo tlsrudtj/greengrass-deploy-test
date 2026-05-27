@@ -3,13 +3,13 @@ import json
 from datetime import datetime
 import paho.mqtt.client as mqtt
 
-VERSION = "1.0.0.6"
+VERSION = "1.0.0.7"
 
 MQTT_BROKER = "172.17.0.3"
 MQTT_PORT = 1883
 
-TOPIC_PUBLISH = "status/order_manager/robot_manager"
-TOPIC_SUBSCRIBE = "event/robot_manager/submit_task"
+TOPIC_PUBLISH = "r5/test/status"         # EMQX Bridge Egress 통해 IoT Core로 전달
+TOPIC_SUBSCRIBE = "r5/test/command"      # IoT Core에서 명령 수신용
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
