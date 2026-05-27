@@ -3,9 +3,9 @@ import json
 from datetime import datetime
 import paho.mqtt.client as mqtt
 
-VERSION = "1.0.0.6"
+VERSION = "1.0.1.0"
 
-MQTT_BROKER = "172.17.0.3"
+MQTT_BROKER = "172.30.1.10"
 MQTT_PORT = 1883
 
 TOPIC_PUBLISH = "status/order_manager/robot_manager"
