@@ -44,4 +44,4 @@ while True:
     })
     client.publish(TOPIC_PUBLISH, payload)
     print(f"[MQTT] 발행 | topic: {TOPIC_PUBLISH} | {payload}")
-    time.sleep(3)
+    time.sleep(30)
