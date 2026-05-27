@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 import paho.mqtt.client as mqtt
 
-VERSION = "1.0.0.8"
+VERSION = "1.0.0.9"
 
 MQTT_BROKER = "172.17.0.3"
 MQTT_PORT = 1883
@@ -41,8 +41,16 @@ client.connect(MQTT_BROKER, MQTT_PORT, keepalive=60)
 client.loop_start()
 
 # 연결 완료까지 대기
-while not connected:
+timeout = 10
+elapsed = 0
+while not connected and elapsed < timeout:
     time.sleep(0.1)
+    elapsed += 0.1
+
+if not connected:
+    print("[MQTT] 연결 타임아웃! EMQX 브로커 확인 필요")
+else:
+    print("[MQTT] 연결 완료, 발행 시작")
 
 while True:
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
